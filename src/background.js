@@ -1,9 +1,8 @@
-console.log('Background script is running');
+let storedTimeTableData = [];
 
-chrome.runtime.onInstalled.addListener(() => {
-    console.log("Extension installed");
-  });
-
-  chrome.action.onClicked.addListener((tab) => {
-    console.log("Background script detected click!");
-  });
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'timeTableData') {
+    storedTimeTableData = message.data;
+    console.log('Background received timetable data:', storedTimeTableData);
+  }
+});

@@ -4,12 +4,16 @@ import './App.css';
 function App() {
   const [isToggled, setIsToggled] = useState(false);
 
-  const [timeTableData, setTimeTableData] = useState([]);
+  const [timeTable, setTimeTable] = useState([]);
 
   useEffect(() => {
-    console.log('React Popup loaded');
+    chrome.runtime.sendMessage({ action: "getTimeTableData" }, (response) => {
+      if (response?.data) {
+        setTimeTable(response.data);
+      }
+    });
+    console.log(timeTable);
   }, []);
-
   const handleToggle = () => {
     const newState = !isToggled;
     setIsToggled(newState);
