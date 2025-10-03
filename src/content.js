@@ -1,34 +1,32 @@
 function extractTimeTableData() {
-    // Select all <tr> elements with id="timeTableRow"
     const rows = document.querySelectorAll('.timeTableRow');
     const timeTableData = [];
   
-    // Loop through each row (<tr>)
     rows.forEach(row => {
-      const rowData = [];
+      const subjectCell = row.querySelector('.timeTableSubject');
+      const slot = row.querySelector('.timeTableSlot');
   
-      // Find all <td> elements with id="timeTableSubject" inside this row
-      const cells = row.querySelectorAll('.timeTableSubject');
+      if (subjectCell && slot) {
+        const divs = slot.querySelectorAll('div');
   
-      // Loop through each <td> and extract the text content
-      cells.forEach(cell => {
-        const cellText = cell.innerText || cell.textContent;
-        rowData.push(cellText); // Add the text content to rowData
-      });
+        const obj = {
+          "Subject Name": subjectCell.innerText.trim(),
+          lecturerName: divs[0]?.innerText.trim() || "",
+          auditory: divs[1]?.innerText.trim() || "",
+          date: divs[2]?.innerText.trim() || ""
+        };
   
-      // Add the row data to the main timeTableData array
-      timeTableData.push(rowData);
+        console.log("Row data:", obj);
+        timeTableData.push(obj);
+      }
     });
   
-    // Log the data to check
-    console.log(timeTableData);  // Example output: [['Math', 'Science'], ['English', 'History']]
+    console.log("Final Time Table Data:", timeTableData);
     chrome.runtime.sendMessage({ action: 'timeTableData', data: timeTableData });
-    return timeTableData; // Optionally return the data if needed
+    return timeTableData;
   }
-  
-  // Call the function to extract the timetable data
+  //https://chatgpt.com/c/68dfe8c2-28b4-8328-b34b-ef9961e95540
+  // Run the extraction
   extractTimeTableData();
-
-
-console.log('Content script loaded and running');
-
+  console.log('Content script loaded and running');
+  
