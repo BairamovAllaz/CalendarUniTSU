@@ -29,19 +29,29 @@ function extractTimeTableData() {
   return timeTableData;
 }
 
-function clearAllTbody() {
+function clearAllTbody() { //refactor this code 
   document.querySelectorAll("tbody").forEach(tbody => {
     tbody.innerHTML = "";
   });
+  document.querySelectorAll(".table").forEach(tb => { 
+    tb.innerHTML = "";
+  })
+  document.querySelectorAll("mat-radio-group").forEach(tb => { 
+    tb.innerHTML = "";
+  })
+
+  document.querySelectorAll(".paddinPageHeader").forEach(tb => { 
+    tb.innerHTML = "";
+  })
 }
 
 function createCircularDaySelector() {
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const container = document.createElement("div");
   container.id = "circular-day-selector";
   container.style.position = "fixed";
-  container.style.top = "50%";
+  container.style.top = "30%";
   container.style.left = "50%";
   container.style.transform = "translate(-50%, -50%)";
   container.style.width = "220px";
@@ -58,23 +68,44 @@ function createCircularDaySelector() {
 
   const infoDiv = document.createElement("div");
   infoDiv.style.position = "fixed";
-  infoDiv.style.bottom = "10px";
+  infoDiv.style.bottom = "20px";
   infoDiv.style.left = "50%";
   infoDiv.style.transform = "translateX(-50%)";
-  infoDiv.style.padding = "12px 24px";
+  infoDiv.style.padding = "15px 20px";
   infoDiv.style.background = "#4a90e2";
-  infoDiv.style.width = "300px";
-  infoDiv.style.height = "auto";
-  infoDiv.style.minHeight = "60px";
+  infoDiv.style.width = "320px";
+  infoDiv.style.maxHeight = "400px";
+  infoDiv.style.minHeight = "400px";
+  infoDiv.style.overflowY = "auto";
   infoDiv.style.color = "white";
-  infoDiv.style.borderRadius = "25px";
-  infoDiv.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+  infoDiv.style.borderRadius = "15px";
+  infoDiv.style.boxShadow = "0 4px 20px rgba(0,0,0,0.2)";
   infoDiv.style.textAlign = "center";
   infoDiv.style.zIndex = "9998";
   infoDiv.style.fontFamily = "Arial, sans-serif";
   infoDiv.style.fontSize = "14px";
-  infoDiv.style.fontWeight = "bold";
+  infoDiv.style.fontWeight = "500";
+  infoDiv.style.scrollbarWidth = "thin";
+  infoDiv.style.scrollbarColor = "rgba(255,255,255,0.3) transparent";
+  infoDiv.style.overscrollBehavior = "contain";
   infoDiv.innerText = "Select a day to view schedule";
+  
+  // Custom scrollbar for WebKit browsers
+  const style = document.createElement('style');
+  style.textContent = `
+    #${infoDiv.id}::-webkit-scrollbar {
+      width: 6px;
+    }
+    #${infoDiv.id}::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 3px;
+    }
+    #${infoDiv.id}::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+  `;
+  document.head.appendChild(style);
   document.body.appendChild(infoDiv);
 
   const centerX = 110;
@@ -124,17 +155,48 @@ function createCircularDaySelector() {
         day = "პარასკევი";
       }else if(day == "Sat") {
         day = "შაბათი";
-      }else if(day == "Sun") {
-        day = "კვირა";
       }
-
       const filtered = timeTableData.filter(slot => slot.date.includes(day));
+      infoDiv.innerHTML = ''; // Clear previous content
+      
       if (filtered.length > 0) {
-        infoDiv.innerHTML = filtered.map(s => `${s.SubjectName} (${s.lecturerName})`).join("<br>");
-      } else {
-        infoDiv.innerText = `No classes on ${day}`;
+        filtered.forEach(slot => {
+          const classDiv = document.createElement('div');
+          classDiv.style.background = 'rgba(255, 255, 255, 0.15)';
+          classDiv.style.padding = '12px';
+          classDiv.style.margin = '8px 0';
+          classDiv.style.borderRadius = '8px';
+          classDiv.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+          
+          const subject = document.createElement('div');
+          subject.textContent = slot.SubjectName || 'No subject';
+          subject.style.fontWeight = 'bold';
+          subject.style.marginBottom = '6px';
+          
+          const lecturer = document.createElement('div');
+          lecturer.textContent = `Lecturer: ${slot.lecturerName || 'N/A'}`;
+          lecturer.style.fontSize = '0.9em';
+          lecturer.style.opacity = '0.9';
+          lecturer.style.marginBottom = '4px';
+          
+          const room = document.createElement('div');
+          room.textContent = `Room: ${slot.auditory || 'N/A'}`;
+          room.style.fontSize = '0.9em';
+          room.style.opacity = '0.9';
+          
+          classDiv.appendChild(subject);
+          classDiv.appendChild(lecturer);
+          classDiv.appendChild(room);
+          infoDiv.appendChild(classDiv);
+        });
+      }else {
+        const noClasses = document.createElement('div');
+        noClasses.textContent = `No classes on ${day}`;
+        noClasses.style.padding = '12px';
+        noClasses.style.textAlign = 'center';
+        noClasses.style.opacity = '0.8';
+        infoDiv.appendChild(noClasses);
       }
-
       console.log("Selected day:", selectedDay, filtered);
     });
     container.appendChild(btn);
