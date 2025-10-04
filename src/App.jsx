@@ -7,13 +7,17 @@ function App() {
   const [timeTable, setTimeTable] = useState([]);
 
   useEffect(() => {
-    chrome.runtime.sendMessage({ action: "getTimeTableData" }, (response) => {
-      if (response?.data) {
-        setTimeTable(response.data);
+    const listener = (message) => { 
+      if(message.type === "timeTableData") { 
+        setTimeTable(message.payload);
       }
-    });
-    console.log(timeTable);
+    }
+    chrome.runtime.onMessage.addListener(listener);
+    console.log("Time table: " , timeTable);
+    return () => chrome.runtime.onMessage.removeListener(listener);
   }, []);
+
+  
   const handleToggle = () => {
     const newState = !isToggled;
     setIsToggled(newState);
